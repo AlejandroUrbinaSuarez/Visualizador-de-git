@@ -9,7 +9,9 @@ export function renderNodes(
   layout: LayoutResult,
   state: RepoState,
   _prevLayout: LayoutResult | null,
-  onCommitClick: (commitId: string) => void
+  onCommitClick: (commitId: string) => void,
+  onHighlight: (commitId: string) => void,
+  onClearHighlight: () => void
 ): void {
   const existing = new Map<string, SVGGElement>();
   container.querySelectorAll<SVGGElement>('[data-commit-id]').forEach(el => {
@@ -77,6 +79,8 @@ export function renderNodes(
       group.appendChild(msgText);
 
       group.addEventListener('click', () => onCommitClick(node.commitId));
+      group.addEventListener('mouseenter', () => onHighlight(node.commitId));
+      group.addEventListener('mouseleave', () => onClearHighlight());
       group.style.cursor = 'pointer';
       container.appendChild(group);
 

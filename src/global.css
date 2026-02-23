@@ -158,6 +158,32 @@ body {
   stroke-dasharray: 6 3;
 }
 
+/* === Hover Highlight === */
+
+.graph-root.has-highlight .commit-node {
+  opacity: 0.25;
+  transition: opacity 0.2s;
+}
+
+.graph-root.has-highlight .commit-edge {
+  opacity: 0.15;
+  transition: opacity 0.2s;
+}
+
+.graph-root.has-highlight .commit-node.highlighted {
+  opacity: 1;
+}
+
+.graph-root.has-highlight .commit-node.highlighted .commit-circle {
+  filter: drop-shadow(0 0 8px var(--color-accent));
+}
+
+.graph-root.has-highlight .commit-edge.highlighted {
+  opacity: 1;
+  stroke: var(--color-accent);
+  stroke-width: 3;
+}
+
 /* === Branch Labels === */
 
 .label-bg {
@@ -223,6 +249,32 @@ body {
 
 .action-btn:active {
   filter: brightness(0.9);
+}
+
+.demo-btn {
+  background: var(--color-accent-secondary);
+}
+
+.merge-btn {
+  background: var(--color-success);
+  color: #1a1b26;
+}
+
+.rebase-btn {
+  background: var(--color-warning);
+  color: #1a1b26;
+}
+
+.reset-btn {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.reset-hard-btn {
+  background: var(--color-error);
+  color: white;
+  border: none;
 }
 
 .action-input {

@@ -22,13 +22,16 @@ function bootstrap(): void {
   const shell = createAppShell();
   document.documentElement.setAttribute('data-theme', initialState.config.theme);
 
-  // SVG renderer with commit-click handler
-  const renderer = createSvgRenderer((commitId) => {
-    store.setState(prev => ({
-      ...prev,
-      selectedCommitId: prev.selectedCommitId === commitId ? null : commitId,
-    }));
-  });
+  // SVG renderer with commit-click handler and state accessor for highlights
+  const renderer = createSvgRenderer(
+    (commitId) => {
+      store.setState(prev => ({
+        ...prev,
+        selectedCommitId: prev.selectedCommitId === commitId ? null : commitId,
+      }));
+    },
+    () => store.getState()
+  );
   renderer.mount(shell.graphContainer);
 
   // Subscribe renderer to state changes

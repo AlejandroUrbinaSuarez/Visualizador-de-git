@@ -1,5 +1,5 @@
 import type { Store, RepoState } from '../core/types';
-import { init, commitOp, branchOp, checkoutOp } from '../core/operations';
+import { init, commitOp, branchOp, checkoutOp, mergeOp, rebaseOp, resetOp, loadDemoScenario } from '../core/operations';
 
 export function createActionPanel(
   container: HTMLElement,
@@ -11,6 +11,12 @@ export function createActionPanel(
     store.setState(() => init());
   });
   initSection.appendChild(initBtn);
+
+  const demoBtn = createButton('Load Demo', () => {
+    store.setState(() => loadDemoScenario());
+  });
+  demoBtn.classList.add('demo-btn');
+  initSection.appendChild(demoBtn);
 
   // --- Commit ---
   const commitSection = createSection('Commit');
@@ -91,11 +97,75 @@ export function createActionPanel(
     }
   });
 
+  // --- Merge ---
+  const mergeSection = createSection('Merge');
+  const mergeInput = createInput('Source branch...');
+  const mergeBtn = createButton('git merge', () => {
+    const { state, result } = mergeOp(store.getState(), mergeInput.value);
+    if (result.success) {
+      store.setState(() => state);
+      mergeInput.value = '';
+    } else {
+      showError(container, result.error!);
+    }
+  });
+  mergeBtn.classList.add('merge-btn');
+  mergeInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') mergeBtn.click();
+  });
+  mergeSection.appendChild(mergeInput);
+  mergeSection.appendChild(mergeBtn);
+
+  // --- Rebase ---
+  const rebaseSection = createSection('Rebase');
+  const rebaseInput = createInput('Onto branch...');
+  const rebaseBtn = createButton('git rebase', () => {
+    const { state, result } = rebaseOp(store.getState(), rebaseInput.value);
+    if (result.success) {
+      store.setState(() => state);
+      rebaseInput.value = '';
+    } else {
+      showError(container, result.error!);
+    }
+  });
+  rebaseBtn.classList.add('rebase-btn');
+  rebaseInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') rebaseBtn.click();
+  });
+  rebaseSection.appendChild(rebaseInput);
+  rebaseSection.appendChild(rebaseBtn);
+
+  // --- Reset ---
+  const resetSection = createSection('Reset');
+  const resetSoftBtn = createButton('git reset --soft', () => {
+    const { state, result } = resetOp(store.getState(), 'soft');
+    if (result.success) {
+      store.setState(() => state);
+    } else {
+      showError(container, result.error!);
+    }
+  });
+  resetSoftBtn.classList.add('reset-btn');
+  const resetHardBtn = createButton('git reset --hard', () => {
+    const { state, result } = resetOp(store.getState(), 'hard');
+    if (result.success) {
+      store.setState(() => state);
+    } else {
+      showError(container, result.error!);
+    }
+  });
+  resetHardBtn.classList.add('reset-btn', 'reset-hard-btn');
+  resetSection.appendChild(resetSoftBtn);
+  resetSection.appendChild(resetHardBtn);
+
   // Assemble sections
   container.appendChild(initSection);
   container.appendChild(commitSection);
   container.appendChild(branchSection);
   container.appendChild(checkoutSection);
+  container.appendChild(mergeSection);
+  container.appendChild(rebaseSection);
+  container.appendChild(resetSection);
 }
 
 function createSection(title: string): HTMLElement {

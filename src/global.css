@@ -1,0 +1,383 @@
+/* === Theme: Tokyo Night === */
+
+:root {
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+[data-theme="dark"] {
+  --color-bg: #1a1b26;
+  --color-surface: #24283b;
+  --color-surface-hover: #2f3549;
+  --color-text: #c0caf5;
+  --color-text-muted: #565f89;
+  --color-accent: #7aa2f7;
+  --color-accent-secondary: #bb9af7;
+  --color-success: #9ece6a;
+  --color-warning: #e0af68;
+  --color-error: #f7768e;
+  --color-node-fill: #3b4261;
+  --color-node-stroke: #7aa2f7;
+  --color-node-head: #bb9af7;
+  --color-node-selected: #ff9e64;
+  --color-edge: #565f89;
+  --color-merge-edge: #bb9af7;
+  --color-label-bg: #3b4261;
+  --color-label-text: #c0caf5;
+  --color-label-head-bg: #7aa2f7;
+  --color-label-head-text: #1a1b26;
+  --color-border: #3b4261;
+  --color-input-bg: #1a1b26;
+}
+
+[data-theme="light"] {
+  --color-bg: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f0f0f0;
+  --color-text: #343b58;
+  --color-text-muted: #9699a3;
+  --color-accent: #2e7de9;
+  --color-accent-secondary: #9854f1;
+  --color-success: #587539;
+  --color-warning: #8f5e15;
+  --color-error: #f52a65;
+  --color-node-fill: #e1e2e7;
+  --color-node-stroke: #2e7de9;
+  --color-node-head: #9854f1;
+  --color-node-selected: #b15c00;
+  --color-edge: #9699a3;
+  --color-merge-edge: #9854f1;
+  --color-label-bg: #e1e2e7;
+  --color-label-text: #343b58;
+  --color-label-head-bg: #2e7de9;
+  --color-label-head-text: #ffffff;
+  --color-border: #d5d6db;
+  --color-input-bg: #ffffff;
+}
+
+/* === Reset === */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* === 3-Column Layout === */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr 280px;
+  height: 100vh;
+  gap: 0;
+}
+
+.panel {
+  background: var(--color-surface);
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.action-panel {
+  border-right: 1px solid var(--color-border);
+}
+
+.inspector-panel {
+  border-left: 1px solid var(--color-border);
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+.graph-area {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* === SVG Graph === */
+
+.git-graph {
+  display: block;
+}
+
+.commit-node {
+  transition: transform 0.3s ease-out;
+}
+
+.commit-circle {
+  fill: var(--color-node-fill);
+  stroke: var(--color-node-stroke);
+  stroke-width: 2.5;
+  transition: fill 0.2s, stroke 0.2s, stroke-width 0.2s;
+}
+
+.commit-node.is-head .commit-circle {
+  stroke: var(--color-node-head);
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 6px var(--color-node-head));
+}
+
+.commit-node.is-selected .commit-circle {
+  stroke: var(--color-node-selected);
+  stroke-width: 3.5;
+}
+
+.commit-hash {
+  fill: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.commit-message {
+  fill: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 11px;
+}
+
+.commit-edge {
+  stroke: var(--color-edge);
+}
+
+.merge-edge {
+  stroke: var(--color-merge-edge);
+  stroke-dasharray: 6 3;
+}
+
+/* === Branch Labels === */
+
+.label-bg {
+  fill: var(--color-label-bg);
+}
+
+.label-text {
+  fill: var(--color-label-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.is-head-branch .label-bg {
+  fill: var(--color-label-head-bg);
+}
+
+.is-head-branch .label-text {
+  fill: var(--color-label-head-text);
+  font-weight: 600;
+}
+
+.is-detached-head .detached-bg {
+  fill: var(--color-warning);
+}
+
+.is-detached-head .label-text {
+  fill: #1a1b26;
+  font-weight: 600;
+}
+
+/* === Action Panel === */
+
+.action-section {
+  margin-bottom: 20px;
+}
+
+.action-section h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.action-btn {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.action-btn:hover {
+  filter: brightness(1.15);
+}
+
+.action-btn:active {
+  filter: brightness(0.9);
+}
+
+.action-input {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.action-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.quick-checkout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.quick-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  display: inline-block;
+  width: auto;
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.quick-btn:hover {
+  background: var(--color-accent);
+  color: white;
+}
+
+.quick-btn.active-branch {
+  background: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+}
+
+/* === Inspector Panel === */
+
+.inspector-section {
+  margin-bottom: 20px;
+}
+
+.inspector-section h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  font-size: 13px;
+}
+
+.info-label {
+  color: var(--color-text-muted);
+}
+
+.info-value {
+  text-align: right;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.branch-list {
+  list-style: none;
+}
+
+.branch-list li {
+  padding: 3px 0;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.branch-list li.active {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.branch-list .mono {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/* === Theme Toggle === */
+
+.theme-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  z-index: 100;
+  transition: background 0.15s;
+}
+
+.theme-toggle:hover {
+  background: var(--color-surface-hover);
+}
+
+/* === Error Toast === */
+
+.error-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-error);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  z-index: 1000;
+  animation: toast-in 0.3s ease-out;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

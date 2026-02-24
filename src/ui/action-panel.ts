@@ -10,17 +10,20 @@ export function createActionPanel(
   const initBtn = createButton('git init', () => {
     store.setState(() => init());
   });
+  initBtn.setAttribute('data-tutorial-target', 'init-btn');
   initSection.appendChild(initBtn);
 
   const demoBtn = createButton('Load Demo', () => {
     store.setState(() => loadDemoScenario());
   });
   demoBtn.classList.add('demo-btn');
+  demoBtn.setAttribute('data-tutorial-target', 'demo-btn');
   initSection.appendChild(demoBtn);
 
   // --- Commit ---
   const commitSection = createSection('Commit');
   const commitInput = createInput('Commit message...');
+  commitInput.setAttribute('data-tutorial-target', 'commit-input');
   const commitBtn = createButton('git commit', () => {
     const { state, result } = commitOp(store.getState(), commitInput.value);
     if (result.success) {
@@ -30,6 +33,7 @@ export function createActionPanel(
       showError(container, result.error!);
     }
   });
+  commitBtn.setAttribute('data-tutorial-target', 'commit-btn');
   commitInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') commitBtn.click();
   });
@@ -39,6 +43,7 @@ export function createActionPanel(
   // --- Branch ---
   const branchSection = createSection('Branch');
   const branchInput = createInput('Branch name...');
+  branchInput.setAttribute('data-tutorial-target', 'branch-input');
   const branchBtn = createButton('git branch', () => {
     const { state, result } = branchOp(store.getState(), branchInput.value);
     if (result.success) {
@@ -48,6 +53,7 @@ export function createActionPanel(
       showError(container, result.error!);
     }
   });
+  branchBtn.setAttribute('data-tutorial-target', 'branch-btn');
   branchInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') branchBtn.click();
   });
@@ -57,6 +63,7 @@ export function createActionPanel(
   // --- Checkout ---
   const checkoutSection = createSection('Checkout');
   const checkoutInput = createInput('Branch or commit...');
+  checkoutInput.setAttribute('data-tutorial-target', 'checkout-input');
   const checkoutBtn = createButton('git checkout', () => {
     const { state, result } = checkoutOp(store.getState(), checkoutInput.value);
     if (result.success) {
@@ -66,6 +73,7 @@ export function createActionPanel(
       showError(container, result.error!);
     }
   });
+  checkoutBtn.setAttribute('data-tutorial-target', 'checkout-btn');
   checkoutInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') checkoutBtn.click();
   });
@@ -100,6 +108,7 @@ export function createActionPanel(
   // --- Merge ---
   const mergeSection = createSection('Merge');
   const mergeInput = createInput('Source branch...');
+  mergeInput.setAttribute('data-tutorial-target', 'merge-input');
   const mergeBtn = createButton('git merge', () => {
     const { state, result } = mergeOp(store.getState(), mergeInput.value);
     if (result.success) {
@@ -110,6 +119,7 @@ export function createActionPanel(
     }
   });
   mergeBtn.classList.add('merge-btn');
+  mergeBtn.setAttribute('data-tutorial-target', 'merge-btn');
   mergeInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') mergeBtn.click();
   });
@@ -119,6 +129,7 @@ export function createActionPanel(
   // --- Rebase ---
   const rebaseSection = createSection('Rebase');
   const rebaseInput = createInput('Onto branch...');
+  rebaseInput.setAttribute('data-tutorial-target', 'rebase-input');
   const rebaseBtn = createButton('git rebase', () => {
     const { state, result } = rebaseOp(store.getState(), rebaseInput.value);
     if (result.success) {
@@ -129,6 +140,7 @@ export function createActionPanel(
     }
   });
   rebaseBtn.classList.add('rebase-btn');
+  rebaseBtn.setAttribute('data-tutorial-target', 'rebase-btn');
   rebaseInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') rebaseBtn.click();
   });
@@ -146,6 +158,7 @@ export function createActionPanel(
     }
   });
   resetSoftBtn.classList.add('reset-btn');
+  resetSoftBtn.setAttribute('data-tutorial-target', 'reset-soft-btn');
   const resetHardBtn = createButton('git reset --hard', () => {
     const { state, result } = resetOp(store.getState(), 'hard');
     if (result.success) {
@@ -155,8 +168,18 @@ export function createActionPanel(
     }
   });
   resetHardBtn.classList.add('reset-btn', 'reset-hard-btn');
+  resetHardBtn.setAttribute('data-tutorial-target', 'reset-hard-btn');
   resetSection.appendChild(resetSoftBtn);
   resetSection.appendChild(resetHardBtn);
+
+  // --- Tutorial ---
+  const tutorialSection = createSection('Tutorial');
+  const tutorialBtn = createButton('Iniciar Tutorial', () => {
+    document.dispatchEvent(new CustomEvent('open-tutorial-picker'));
+  });
+  tutorialBtn.classList.add('tutorial-btn');
+  tutorialBtn.setAttribute('data-tutorial-target', 'tutorial-btn');
+  tutorialSection.appendChild(tutorialBtn);
 
   // Assemble sections
   container.appendChild(initSection);
@@ -166,6 +189,7 @@ export function createActionPanel(
   container.appendChild(mergeSection);
   container.appendChild(rebaseSection);
   container.appendChild(resetSection);
+  container.appendChild(tutorialSection);
 }
 
 function createSection(title: string): HTMLElement {

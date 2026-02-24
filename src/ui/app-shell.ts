@@ -18,6 +18,7 @@ export function createAppShell(): AppShell {
 
   const graphArea = document.createElement('main');
   graphArea.className = 'graph-area';
+  graphArea.setAttribute('data-tutorial-target', 'graph-area');
 
   const inspector = document.createElement('aside');
   inspector.className = 'panel inspector-panel';

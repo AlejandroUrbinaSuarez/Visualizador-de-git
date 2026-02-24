@@ -32,8 +32,18 @@ export class TutorialEngine {
     const lesson = allLessons[lessonIndex];
     if (!lesson) return;
 
-    // Save current repo state to restore on exit
-    this.savedRepoState = this.store.getState();
+    // Clean up any active lesson before starting a new one
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
+    clearHighlight();
+
+    // Only save the original repo state if no tutorial is currently active
+    // (preserve the pre-tutorial snapshot across lesson switches)
+    if (!this.state.active) {
+      this.savedRepoState = this.store.getState();
+    }
 
     // Reset repo to the lesson's initial state
     this.store.setState(() => lesson.initState());

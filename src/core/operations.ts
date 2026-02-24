@@ -279,24 +279,54 @@ export function rebaseOp(
     return { state, result: { success: false, error: 'No common ancestor found' } };
   }
 
-  // Already up to date (current is ahead or same as target with no divergence)
+  // Current branch is behind target (currentHead is the merge base) — fast-forward
   if (currentHead === ancestor) {
+    return {
+      state: {
+        ...state,
+        branches: {
+          ...state.branches,
+          [currentBranchName]: { ...state.branches[currentBranchName], head: targetHead },
+        },
+      },
+      result: { success: true },
+    };
+  }
+
+  // Target is already an ancestor of current with no divergence — nothing to rebase
+  if (targetHead === ancestor) {
     return { state, result: { success: false, error: 'Already up to date — nothing to rebase' } };
   }
 
-  // Collect exclusive commits: walk first-parent from currentHead back to ancestor (exclusive)
-  const exclusiveCommits: Commit[] = [];
-  let walkId: string | null = currentHead;
-  while (walkId && walkId !== ancestor) {
-    const commit: Commit = state.commits[walkId];
-    if (!commit) break;
-    exclusiveCommits.push(commit);
-    walkId = commit.parents.length > 0 ? commit.parents[0] : null;
+  // Collect exclusive commits: all ancestors of currentHead that are NOT ancestors of ancestor
+  // This correctly handles merge commits where the ancestor sits on a non-first-parent path
+  const currentAncestors = getAncestors(state.commits, currentHead);
+  const baseAncestors = getAncestors(state.commits, ancestor);
+  const exclusiveIds = new Set<string>();
+  for (const id of currentAncestors) {
+    if (!baseAncestors.has(id)) exclusiveIds.add(id);
   }
-  exclusiveCommits.reverse(); // oldest first for replay
 
-  if (exclusiveCommits.length === 0) {
+  if (exclusiveIds.size === 0) {
     return { state, result: { success: false, error: 'No commits to rebase' } };
+  }
+
+  // Topologically sort exclusive commits (oldest first) for linear replay
+  const exclusiveCommits: Commit[] = [];
+  const visited = new Set<string>();
+  function topoVisit(id: string): void {
+    if (visited.has(id) || !exclusiveIds.has(id)) return;
+    visited.add(id);
+    const c = state.commits[id];
+    if (c) {
+      for (const pid of c.parents) {
+        topoVisit(pid);
+      }
+      exclusiveCommits.push(c);
+    }
+  }
+  for (const id of exclusiveIds) {
+    topoVisit(id);
   }
 
   // Replay commits onto targetHead

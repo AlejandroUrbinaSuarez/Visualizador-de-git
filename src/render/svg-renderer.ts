@@ -5,6 +5,7 @@ import { renderNodes } from './node-renderer';
 import { renderEdges } from './edge-renderer';
 import { renderLabels } from './label-renderer';
 import { setupPanZoom, type PanZoomState } from './pan-zoom';
+import { getAncestors } from '../core/operations';
 
 export interface SvgRenderer {
   mount(container: HTMLElement): void;
@@ -13,7 +14,8 @@ export interface SvgRenderer {
 }
 
 export function createSvgRenderer(
-  onCommitClick: (commitId: string) => void
+  onCommitClick: (commitId: string) => void,
+  getState: () => RepoState
 ): SvgRenderer {
   let svg: SVGSVGElement | null = null;
   let rootGroup: SVGGElement | null = null;
@@ -24,6 +26,39 @@ export function createSvgRenderer(
   let prevLayout: LayoutResult | null = null;
 
   const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  // Highlight the ancestor path from a given commit
+  function highlightPath(commitId: string): void {
+    if (!rootGroup || !nodeGroup || !edgeGroup) return;
+    const state = getState();
+    const ancestorIds = getAncestors(state.commits, commitId);
+
+    rootGroup.classList.add('has-highlight');
+
+    // Highlight ancestor nodes
+    nodeGroup.querySelectorAll<SVGGElement>('[data-commit-id]').forEach(el => {
+      if (ancestorIds.has(el.dataset.commitId!)) {
+        el.classList.add('highlighted');
+      }
+    });
+
+    // Highlight edges where both endpoints are in the ancestor set
+    edgeGroup.querySelectorAll<SVGPathElement>('[data-edge-key]').forEach(el => {
+      const key = el.dataset.edgeKey!;
+      const [fromId, toId] = key.split('->');
+      if (ancestorIds.has(fromId) && ancestorIds.has(toId)) {
+        el.classList.add('highlighted');
+      }
+    });
+  }
+
+  function clearHighlight(): void {
+    if (!rootGroup) return;
+    rootGroup.classList.remove('has-highlight');
+    rootGroup.querySelectorAll('.highlighted').forEach(el => {
+      el.classList.remove('highlighted');
+    });
+  }
 
   function mount(container: HTMLElement): void {
     svg = document.createElementNS(SVG_NS, 'svg');
@@ -59,8 +94,8 @@ export function createSvgRenderer(
     svg.setAttribute('viewBox', `0 0 ${layout.totalWidth} ${layout.totalHeight}`);
 
     renderEdges(edgeGroup, layout.edges, prevLayout?.edges ?? []);
-    renderNodes(nodeGroup, layout, state, prevLayout, onCommitClick);
-    renderLabels(labelGroup, layout, state);
+    renderNodes(nodeGroup, layout, state, prevLayout, onCommitClick, highlightPath, clearHighlight);
+    renderLabels(labelGroup, layout, state, highlightPath, clearHighlight);
 
     prevLayout = layout;
   }

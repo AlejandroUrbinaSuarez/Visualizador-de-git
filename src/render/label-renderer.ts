@@ -13,7 +13,9 @@ function clearChildren(el: Element): void {
 export function renderLabels(
   container: SVGGElement,
   layout: LayoutResult,
-  state: RepoState
+  state: RepoState,
+  onHighlight: (commitId: string) => void,
+  onClearHighlight: () => void
 ): void {
   // Labels are cheap — rebuild every frame
   clearChildren(container);
@@ -56,6 +58,11 @@ export function renderLabels(
       textEl.setAttribute('y', '4');
       textEl.setAttribute('font-size', String(RENDER.LABEL_FONT_SIZE));
       textEl.textContent = text;
+
+      // Hover on branch label highlights its commit ancestry
+      group.addEventListener('mouseenter', () => onHighlight(label.commitId));
+      group.addEventListener('mouseleave', () => onClearHighlight());
+      group.style.cursor = 'pointer';
 
       group.appendChild(rect);
       group.appendChild(textEl);
